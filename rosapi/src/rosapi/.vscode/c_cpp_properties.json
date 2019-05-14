@@ -1,0 +1,32 @@
+{
+  "configurations": [
+    {
+      "browse": {
+        "databaseFilename": "",
+        "limitSymbolsToIncludedHeaders": true
+      },
+      "includePath": [
+        "/home/info/git/workspace/devel/include",
+        "/opt/ros/melodic/include",
+        "/home/info/git/workspace/src/Autopilot/extern/robot_localization/include",
+        "/home/info/git/workspace/src/Autopilot/extern/ros_comm/tools/rosbag/include",
+        "/home/info/git/workspace/src/Autopilot/extern/ethz_piksi_ros/rqt_gps_rtk_plugin/include",
+        "/home/info/git/workspace/src/Autopilot/vb_bush_detection/include",
+        "/home/info/git/workspace/src/Autopilot/vb_clean_cams/include",
+        "/home/info/git/workspace/src/Autopilot/vb_control/include",
+        "/home/info/git/workspace/src/Autopilot/vb_diagnostics/include",
+        "/home/info/git/workspace/src/Autopilot/vb_end_row_detection/include",
+        "/home/info/git/workspace/src/Autopilot/vb_hardware/include",
+        "/home/info/git/workspace/src/Autopilot/vb_ifm_cam/include",
+        "/home/info/git/workspace/src/Autopilot/vb_security/include",
+        "/home/info/git/workspace/src/Autopilot/vb_turn/include",
+        "/home/info/git/workspace/src/Autopilot/vb_utils_math/include",
+        "/home/info/git/workspace/src/Autopilot/vb_utils_pcl/include",
+        "/home/info/git/workspace/src/Autopilot/vb_utils_ros/include",
+        "/home/info/git/workspace/src/Autopilot/vb_work_manager/include",
+        "/usr/include"
+      ],
+      "name": "Linux"
+    }
+  ]
+}

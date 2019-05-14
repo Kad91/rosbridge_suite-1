@@ -182,6 +182,8 @@ def dict_to_typedef(typedefdict):
     typedef.fieldtypes = typedefdict["fieldtypes"]
     typedef.fieldarraylen = typedefdict["fieldarraylen"]
     typedef.examples = typedefdict["examples"]
+    typedef.constnames = typedefdict["constnames"]
+    typedef.constvalues = typedefdict["constvalues"]
     return typedef
 
 if __name__ == '__main__':

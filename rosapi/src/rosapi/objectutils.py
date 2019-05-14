@@ -32,6 +32,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 from rosbridge_library.internal import ros_loader
+import inspect
 
 # Keep track of atomic types and special types
 atomics = ['bool', 'byte','int8', 'uint8', 'int16', 'uint16', 'int32', 'uint32', 'int64', 'uint64', 'float32', 'float64', 'string']
@@ -45,6 +46,8 @@ def get_typedef(type):
          - string[] fieldtypes
          - int[] fieldarraylen
          - string[] examples
+         - string[] constnames
+         - string[] constvalues
     get_typedef will return a typedef dict for the specified message type """
     if type in atomics:
         # Atomics don't get a typedef
@@ -102,6 +105,8 @@ def _get_typedef(instance):
     fieldtypes = []
     fieldarraylen = []
     examples = []
+    constnames = []
+    constvalues = []
     for i in range(len(instance.__slots__)):
         # Pull out the name
         name = instance.__slots__[i]
@@ -132,12 +137,21 @@ def _get_typedef(instance):
             example = {}
         examples.append(str(example))
 
+    allattributes = inspect.getmembers(instance, lambda a:not(inspect.isroutine(a)))
+    attributesfiltered = [a for a in allattributes if not(a[0].startswith('__') and a[0].endswith('__'))]
+    for j in range(len(attributesfiltered)):
+	    if attributesfiltered[j][0] not in ['_md5sum','_has_header','_type','_full_text','_slot_types'] and attributesfiltered[j][0] not in instance.__slots__:
+	        constnames.append(str(attributesfiltered[j][0]))
+	        constvalues.append(str(attributesfiltered[j][1]))
+	
     typedef = {
        "type": _type_name_from_instance(instance),
        "fieldnames": fieldnames,
        "fieldtypes": fieldtypes,
        "fieldarraylen": fieldarraylen,
-       "examples": examples
+       "examples": examples,
+       "constnames": constnames,
+       "constvalues": constvalues,
     }
 
     return typedef
