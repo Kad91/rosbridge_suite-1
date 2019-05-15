@@ -38,8 +38,15 @@ import inspect
 atomics = ['bool', 'byte','int8', 'uint8', 'int16', 'uint16', 'int32', 'uint32', 'int64', 'uint64', 'float32', 'float64', 'string']
 specials = ['time', 'duration']
 
+class TypeDefDict(dict):
+    FIELDS = ['fieldnames', 'fieldtypes', 'fieldarraylen', 'examples', 'constnames', 'constvalues'] 
+    def __init__(self):
+        dict.__init__(self)
+        self['type'] = ' '
+        for field in TypeDefDict.FIELDS:
+            self[field] = []
 
-def get_typedef(type):
+def get_typedef(type_):
     """ A typedef is a dict containing the following fields:
          - string type
          - string[] fieldnames
@@ -49,16 +56,16 @@ def get_typedef(type):
          - string[] constnames
          - string[] constvalues
     get_typedef will return a typedef dict for the specified message type """
-    if type in atomics:
+    if type_ in atomics:
         # Atomics don't get a typedef
         return None
 
-    if type in specials:
+    if type_ in specials:
         # Specials get their type def mocked up
-        return _get_special_typedef(type)
+        return _get_special_typedef(type_)
 
     # Fetch an instance and return its typedef
-    instance = ros_loader.get_message_instance(type)
+    instance = ros_loader.get_message_instance(type_)
     return _get_typedef(instance)
 
 def get_service_request_typedef(servicetype):
@@ -73,10 +80,10 @@ def get_service_response_typedef(servicetype):
     instance = ros_loader.get_service_response_instance(servicetype)
     return _get_typedef(instance)
 
-def get_typedef_recursive(type):
+def get_typedef_recursive(type_):
     """ Returns a list of typedef dicts for this type and all contained type fields """
     # Just go straight into the recursive method
-    return _get_typedefs_recursive(type, [])
+    return _get_typedefs_recursive(type_, [])
 
 def get_service_request_typedef_recursive(servicetype):
     """ Returns a list of typedef dicts for this type and all contained type fields """
@@ -140,45 +147,43 @@ def _get_typedef(instance):
     allattributes = inspect.getmembers(instance, lambda a:not(inspect.isroutine(a)))
     attributesfiltered = [a for a in allattributes if not(a[0].startswith('__') and a[0].endswith('__'))]
     for j in range(len(attributesfiltered)):
-	    if attributesfiltered[j][0] not in ['_md5sum','_has_header','_type','_full_text','_slot_types'] and attributesfiltered[j][0] not in instance.__slots__:
-	        constnames.append(str(attributesfiltered[j][0]))
-	        constvalues.append(str(attributesfiltered[j][1]))
-	
-    typedef = {
-       "type": _type_name_from_instance(instance),
-       "fieldnames": fieldnames,
-       "fieldtypes": fieldtypes,
-       "fieldarraylen": fieldarraylen,
-       "examples": examples,
-       "constnames": constnames,
-       "constvalues": constvalues,
-    }
+        if attributesfiltered[j][0] not in ['_md5sum','_has_header','_type','_full_text','_slot_types'] and attributesfiltered[j][0] not in instance.__slots__:
+            constnames.append(str(attributesfiltered[j][0]))
+            constvalues.append(str(attributesfiltered[j][1]))
+    typedef = TypeDefDict()
+    typedef["type"] = _type_name_from_instance(instance)
+    typedef["fieldnames"] = fieldnames
+    typedef["fieldtypes"] = fieldtypes
+    typedef["fieldarraylen"] = fieldarraylen
+    typedef["examples"] = examples
+    typedef["constnames"] = constnames
+    typedef["constvalues"] = constvalues
 
     return typedef
 
-def _get_special_typedef(type):
-    example = None
-    if type=="time" or type=="duration":
-        example = {
-            "type": type,
-            "fieldnames": ["secs", "nsecs"],
-            "fieldtypes": ["int32", "int32"],
-            "fieldarraylen": [-1, -1],
-            "examples": [ "0", "0" ]
-        }
+def _get_special_typedef(type_):
+    example = TypeDefDict()
+    if type_ in specials:
+        example = TypeDefDict()
+        example["type"] = type_
+        example["fieldnames"] = ["secs", "nsecs"]
+        example["fieldtypes"] = ["int32", "int32"]
+        example["fieldarraylen"] = [-1, -1]
+        example["examples"] = ["0", "0"]
+
     return example
 
-def _get_typedefs_recursive(type, typesseen):
+def _get_typedefs_recursive(type_, typesseen):
     """ returns the type def for this type as well as the type defs for any fields within the type """
-    if type in typesseen:
+    if type_ in typesseen:
         # Don't put a type if it's already been seen
         return []
 
     # Note that we have now seen this type
-    typesseen.append(type)
+    typesseen.append(type_)
 
     # Get the typedef for this type and make sure it's not None
-    typedef = get_typedef(type)
+    typedef = get_typedef(type_)
 
     return _get_subtypedefs_recursive(typedef, typesseen)
 
@@ -193,23 +198,23 @@ def _get_subtypedefs_recursive(typedef, typesseen):
 
     return typedefs
 
-def _type_name(type, instance):
+def _type_name(type_, instance):
     """ given a short type, and an object instance of that type,
     determines and returns the fully qualified type """
     # The fully qualified type of atomic and special types is just their original name
-    if type in atomics or type in specials:
-        return type
+    if type_ in atomics or type_ in specials:
+        return type_
 
     # If the instance is a list, then we can get no more information from the instance.
     # However, luckily, the 'type' field for list types is usually already inflated to the full type.
     if isinstance(instance, list):
-        return type
+        return type_
 
     # Otherwise, the type will come from the module and class name of the instance
     return _type_name_from_instance(instance)
 
 def _type_name_from_instance(instance):
     mod = instance.__module__
-    type = mod[0:mod.find('.')]+"/"+instance.__class__.__name__
-    return type
+    type_ = mod[0:mod.find('.')]+"/"+instance.__class__.__name__
+    return type_
 
