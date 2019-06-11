@@ -137,22 +137,21 @@ def _get_typedef(instance):
         examples.append(str(example))
 
     allattributes = inspect.getmembers(instance, lambda a:not(inspect.isroutine(a)))
-    attributesfiltered = [a for a in allattributes if not a[0].startswith('_')]#get all attributes including members of ros message
 
     #Add pseudo constants names and values filtering members
-    for attribute in attributesfiltered:
-        if attribute[0] not in instance.__slots__:
+    for attribute in allattributes:
+        if attribute[0] not in instance.__slots__ and not attribute[0].startswith('_') :
             constnames.append(str(attribute[0]))
             constvalues.append(str(attribute[1]))
 
     typedef = {
-        "type" = _typename_from_instance(instance)
-        "fieldnames"= fieldnames
-        "fieldtypes" = fieldtypes
-        "fieldarraylen" = fieldarraylen
-        "examples" = examples
-        "constnames" = constnames
-        "constvalues" = constvalues
+        "type" : _typename_from_instance(instance),
+        "fieldnames" : fieldnames,
+        "fieldtypes" : fieldtypes,
+        "fieldarraylen" : fieldarraylen,
+        "examples" : examples,
+        "constnames" : constnames,
+        "constvalues" : constvalues
     }
 
     return typedef
