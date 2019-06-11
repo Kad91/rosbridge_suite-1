@@ -136,11 +136,10 @@ def _get_typedef(instance):
             example = {}
         examples.append(str(example))
 
-    allattributes = inspect.getmembers(instance, lambda a:not(inspect.isroutine(a)))
-
     # Add pseudo constants names and values filtering members
-    for attribute in allattributes:
-        if attribute[0] not in instance.__slots__ and not attribute[0].startswith('_') :
+    attributes = inspect.getmembers(instance)
+    for attribute in attributes:
+        if attribute[0] not in instance.__slots__ and not attribute[0].startswith('_') and not inspect.isroutine(attribute[1]):
             constnames.append(str(attribute[0]))
             constvalues.append(str(attribute[1]))
 
