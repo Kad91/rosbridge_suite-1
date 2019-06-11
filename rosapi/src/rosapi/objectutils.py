@@ -126,7 +126,7 @@ def _get_typedef(instance):
 
         # Get the fully qualified type
         field_instance = getattr(instance, name)
-        fieldtypes.append(_typename(field_type, field_instance))
+        fieldtypes.append(_type_name(field_type, field_instance))
 
         # Set the example as appropriate
         example = field_instance
@@ -138,14 +138,14 @@ def _get_typedef(instance):
 
     allattributes = inspect.getmembers(instance, lambda a:not(inspect.isroutine(a)))
 
-    #Add pseudo constants names and values filtering members
+    # Add pseudo constants names and values filtering members
     for attribute in allattributes:
         if attribute[0] not in instance.__slots__ and not attribute[0].startswith('_') :
             constnames.append(str(attribute[0]))
             constvalues.append(str(attribute[1]))
 
     typedef = {
-        "type" : _typename_from_instance(instance),
+        "type" : _type_name_from_instance(instance),
         "fieldnames" : fieldnames,
         "fieldtypes" : fieldtypes,
         "fieldarraylen" : fieldarraylen,
@@ -161,7 +161,7 @@ def _get_special_typedef(type):
     if type=="time" or type=="duration":
         example = {
             "type": type,
-            "fieldnames": ["sec", "nsec"],
+            "fieldnames": ["secs", "nsecs"],
             "fieldtypes": ["int32", "int32"],
             "fieldarraylen": [-1, -1],
             "examples": [ "0", "0" ],
@@ -195,7 +195,7 @@ def _get_subtypedefs_recursive(typedef, typesseen):
 
     return typedefs
 
-def _typename(type, instance):
+def _type_name(type, instance):
     """ given a short type, and an object instance of that type,
     determines and returns the fully qualified type """
     # The fully qualified type of atomic and special types is just their original name
@@ -208,9 +208,9 @@ def _typename(type, instance):
         return type
 
     # Otherwise, the type will come from the module and class name of the instance
-    return _typename_from_instance(instance)
+    return _type_name_from_instance(instance)
 
-def _typename_from_instance(instance):
+def _type_name_from_instance(instance):
     mod = instance.__module__
     type = mod[0:mod.find('.')]+"/"+instance.__class__.__name__
     return type
