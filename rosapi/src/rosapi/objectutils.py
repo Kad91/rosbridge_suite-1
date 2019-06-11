@@ -166,7 +166,7 @@ def _get_special_typedef(type):
             "fieldarraylen": [-1, -1],
             "examples": [ "0", "0" ],
             "constnames": [],
-            "constvalues": [],
+            "constvalues": []
         }
     return example
 
